@@ -12,7 +12,7 @@ pipeline {
       post {
         always {
           echo 'Stopping and removing Maven container...'
-          sh 'docker stop maven-container || true'
+          sh 'docker stop maven-container || false'
           sh 'docker rm   maven-container || false'
         }
       }
@@ -27,7 +27,7 @@ pipeline {
       post {
         always {
           echo 'Stopping and removing Node container...'
-          sh 'docker stop node-container || true'
+          sh 'docker stop node-container || false'
           sh 'docker rm   node-container || false'
         }
       }
