@@ -1,21 +1,58 @@
 pipeline {
-  agent none
+  agent any
+
   stages {
+
     stage('Back-end') {
-      agent {
-        docker { image 'maven:3.8.1-adoptopenjdk-11' }
-      }
       steps {
-        sh 'mvn --version'
+        echo 'Starting Maven container...'
+        sh 'docker run --name maven-container maven:3.8.1-adoptopenjdk-11 mvn --version'
+        echo 'Maven container finished!'
+      }
+      post {
+        always {
+          echo 'Stopping and removing Maven container...'
+          sh 'docker stop maven-container || true'
+          sh 'docker rm   maven-container || false'
+        }
       }
     }
+
     stage('Front-end') {
-      agent {
-        docker { image 'node:16-alpine' }
-      }
       steps {
-        sh 'node --version'
+        echo 'Starting Node container...'
+        sh 'docker run --name node-container node:16-alpine node --version'
+        echo 'Node container finished!'
       }
+      post {
+        always {
+          echo 'Stopping and removing Node container...'
+          sh 'docker stop node-container || true'
+          sh 'docker rm   node-container || false'
+        }
+      }
+    }
+
+    stage('Clean Up Images') {
+      steps {
+        echo 'Removing Docker images...'
+        sh 'docker rmi maven:3.8.1-adoptopenjdk-11 || false'
+        sh 'docker rmi node:16-alpine || false'
+        echo 'Images removed!'
+      }
+    }
+
+  }
+
+  post {
+    success {
+      echo 'Pipeline completed successfully!'
+    }
+    failure {
+      echo 'Pipeline failed! Check logs.'
+    }
+    always {
+      echo 'Pipeline done!'
     }
   }
 }
