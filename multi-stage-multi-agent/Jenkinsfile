@@ -5,17 +5,38 @@ pipeline {
 
     stage('Pull Docker Image') {
       steps {
+        echo 'Pulling hello-world image from Docker Hub...'
         sh 'docker pull hello-world'
+        echo 'Image pulled successfully!'
       }
     }
 
     stage('Run Docker Container') {
       steps {
+        echo 'Starting the container...'
         sh 'docker run --name test-container hello-world'
+        echo 'Container ran successfully!'
       }
     }
 
-   
+    stage('Check Container Status') {
+      steps {
+        echo 'Checking container status...'
+        sh 'docker ps -a'                                      // list all containers
+        sh 'docker inspect test-container'                     // full details of container
+        sh 'docker logs test-container'                        // print container logs
+      }
+    }
+
+    stage('Clean Up') {
+      steps {
+        echo 'Cleaning up container and image...'
+        sh 'docker rm test-container'                          // remove container
+        sh 'docker rmi hello-world'                            // remove image
+        echo 'Clean up done!'
+      }
+    }
+
   }
 
   post {
@@ -23,7 +44,12 @@ pipeline {
       echo 'Pipeline completed successfully!'
     }
     failure {
-      echo 'Pipeline failed! Check the logs.'
+      echo 'Pipeline failed! Attempting emergency clean up...'
+      sh 'docker rm -f test-container || true'                 // force remove if exists
+      sh 'docker rmi -f hello-world || true'                   // force remove if exists
+    }
+    always {
+      echo 'Pipeline finished. Check logs above for details.'
     }
   }
 }
