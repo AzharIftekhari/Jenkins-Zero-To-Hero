@@ -1,21 +1,41 @@
 pipeline {
-  agent none
+  agent any
+
   stages {
-    stage('Back-end') {
-      agent {
-        docker { image 'maven:3.8.1-adoptopenjdk-11' }
-      }
+
+    stage('Pull Docker Image') {
       steps {
-        sh 'mvn --version'
+        sh 'docker pull hello-world'
       }
     }
-    stage('Front-end') {
-      agent {
-        docker { image 'node:16-alpine' }
-      }
+
+    stage('Run Docker Container') {
       steps {
-        sh 'node --version'
+        sh 'docker run --name test-container hello-world'
       }
+    }
+
+    stage('Check Running Containers') {
+      steps {
+        sh 'docker ps -a'
+      }
+    }
+
+    stage('Clean Up') {
+      steps {
+        sh 'docker rm test-container'
+        sh 'docker rmi hello-world'
+      }
+    }
+
+  }
+
+  post {
+    success {
+      echo 'Pipeline completed successfully!'
+    }
+    failure {
+      echo 'Pipeline failed! Check the logs.'
     }
   }
 }
