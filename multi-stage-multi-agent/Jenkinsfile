@@ -20,14 +20,6 @@ pipeline {
         sh 'docker ps -a'
       }
     }
-
-    stage('Clean Up') {
-      steps {
-        sh 'docker rm test-container'
-        sh 'docker rmi hello-world'
-      }
-    }
-
   }
 
   post {
