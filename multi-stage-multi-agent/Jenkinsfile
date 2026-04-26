@@ -28,14 +28,7 @@ pipeline {
       }
     }
 
-    stage('Clean Up') {
-      steps {
-        echo 'Cleaning up container and image...'
-        sh 'docker rm test-container'                          // remove container
-        sh 'docker rmi hello-world'                            // remove image
-        echo 'Clean up done!'
-      }
-    }
+    
 
   }
 
